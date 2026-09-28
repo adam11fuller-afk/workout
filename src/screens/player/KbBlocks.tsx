@@ -316,15 +316,21 @@ export function IntervalBlock({ block, session, logs, lastLogs, units, snatch, o
   const minutes = b ? (session.deload ? deloadSets(b.minutes) : b.minutes) : 8
   const existing = logs.find((l) => l.blockKey === block.key)
   const [weight, setWeight] = useState(existing?.weightLb ?? lastWeight(lastLogs, exId))
-  const iv = useIntervals(b?.onSec ?? 15, b?.offSec ?? 15, minutes * 60, { onDone: () => { sounds.finish(); buzz.long() } })
+  const cycle = (b?.onSec ?? 15) + (b?.offSec ?? 15)
+  const nRounds = Math.ceil((minutes * 60) / cycle)
+  const [checks, setChecks] = useState<boolean[]>(existing?.roundChecks ?? Array(nRounds).fill(false))
+  const iv = useIntervals(b?.onSec ?? 15, b?.offSec ?? 15, minutes * 60, {
+    onRound: (r) => setChecks((c) => c.map((v, i) => (i < r - 1 ? true : v))),
+    onDone: () => { setChecks((c) => c.map(() => true)); sounds.finish(); buzz.long() },
+  })
   if (!b) return null
   const idle = !iv.running && iv.remaining === iv.total && !iv.done
-  const roundsDone = iv.done ? iv.rounds : Math.max(0, iv.round - (iv.phase === 'on' ? 1 : 0))
 
   const save = async () => {
     await repo.upsertSetLog({
       id: logId(session.id, block.key, 0, 0), sessionId: session.id, exerciseId: exId, blockKey: block.key, setIndex: 0,
-      kind: 'timed', weightLb: weight || undefined, roundsCompleted: roundsDone, seconds: Math.round(iv.total - iv.remaining), createdAt: now(),
+      kind: 'timed', weightLb: weight || undefined, roundsCompleted: checks.filter(Boolean).length, roundChecks: checks,
+      seconds: Math.round(iv.total - iv.remaining), createdAt: now(),
     })
     onDone()
   }
@@ -356,6 +362,7 @@ export function IntervalBlock({ block, session, logs, lastLogs, units, snatch, o
             </div>
           </>
         )}
+        <RoundChecks checks={checks} onToggle={(i) => setChecks((c) => c.map((v, j) => (j === i ? !v : v)))} />
       </Card>
     </div>
   )
