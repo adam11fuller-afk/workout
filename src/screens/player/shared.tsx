@@ -69,7 +69,11 @@ export function ExerciseHeader({ exercise, label, prescription, badge, compact }
 export function fmtSet(l: SetLog, units: Units): string {
   const w = l.weightLb != null ? fmtWeight(l.weightLb, units).replace(` ${units}`, '') : null
   if (l.kind === 'carry') return `${w ?? '—'} × ${l.distanceYd ?? 0} yd`
-  if (l.kind === 'timed') return `${w ? `${w} ${units} · ` : ''}${l.roundsCompleted ?? l.reps ?? 0} rounds`
+  if (l.kind === 'timed') {
+    const n = l.roundsCompleted ?? l.reps ?? 0
+    const unit = l.roundChecks ? 'rounds' : l.reps != null && l.reps === l.roundsCompleted ? 'reps' : 'rounds'
+    return `${w ? `${w} ${units} · ` : ''}${n} ${unit}`
+  }
   if (l.kind === 'sprint') return l.effort ? `RPE ${l.effort}` : 'done'
   return w != null ? `${w} × ${l.reps ?? 0}` : `${l.reps ?? 0} reps`
 }

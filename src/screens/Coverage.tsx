@@ -20,7 +20,7 @@ export default function Coverage() {
     <div>
       <TopBar title="Coverage" eyebrow={`Last 3 weeks · ${fmtDateShort(since)} → today · ${nSessions} lifting sessions`} />
       <div className="px-4 space-y-4">
-        {zero.length > 0 && nSessions > 0 && (
+        {zero.length > 0 && nSessions >= 3 && (
           <Card className="border-bad/40">
             <div className="eyebrow text-bad">Zero sets</div>
             <div className="text-ink-2 text-sm mt-1">{zero.map((z) => z.muscle).join(', ')}. Across A → B → C every group is hit at least twice; only upper chest relies on one lift (incline press in A). A gap here usually means a missed rotation.</div>

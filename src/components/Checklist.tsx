@@ -22,7 +22,7 @@ export function Checklist({ steps, done, onToggle }: { steps: WarmupStep[]; done
               >
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7" /></svg>
               </button>
-              <button type="button" className="flex-1 min-w-0 text-left h-12" onClick={() => ex && setOpen(open === i ? null : i)}>
+              <button type="button" className="flex-1 min-w-0 text-left min-h-12 py-1" onClick={() => ex && setOpen(open === i ? null : i)}>
                 <div className={`font-semibold ${isDone ? 'text-ink-3 line-through' : 'text-ink'}`}>{s.label}</div>
                 <div className="text-xs text-ink-3">{[s.detail, s.seconds ? fmtClock(s.seconds) : undefined].filter(Boolean).join(' · ')}</div>
               </button>

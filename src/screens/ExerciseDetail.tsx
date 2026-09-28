@@ -13,7 +13,7 @@ import type { ExerciseSettings } from '../data/types'
 import { useExerciseSettings, useHistoryIndex, useSettings } from '../db/hooks'
 import { repo } from '../db/repo'
 import { fmtDateShort } from '../lib/dates'
-import { fmtWeight, fromDisplayWeight, toDisplayWeight, weightStep } from '../lib/format'
+import { fmtWeight, fromDisplayWeight, plural, toDisplayWeight, weightStep } from '../lib/format'
 import { groupExerciseHistory, sessionMap } from '../lib/logic'
 import { parseYoutubeId } from '../lib/youtube'
 import { fmtSet } from './player/shared'
@@ -90,7 +90,7 @@ export default function ExerciseDetail() {
 
         {history.length > 0 ? (
           <>
-            <div className="eyebrow">History · {history.length} sessions</div>
+            <div className="eyebrow">History · {plural(history.length, "session")}</div>
             {weightPts.length > 0 && <LineChart title={`Top-set weight (${units})`} points={weightPts} />}
             <LineChart title="Total reps" points={repPts} color="var(--color-cool)" />
             <Card className="p-0 divide-y divide-line">
