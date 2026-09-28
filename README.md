@@ -15,18 +15,31 @@ npm run preview    # serve dist/ exactly as Cloudflare will
 
 To test on your phone before deploying: `npm run dev -- --host`, then open the LAN URL it prints (e.g. `http://192.168.1.20:5173`) on the phone. PWA install and Wake Lock need HTTPS, so use the deployed site for those.
 
-## Deploy (Cloudflare Pages, free)
+## Deploy (Cloudflare, free)
 
-One-time setup:
+Cloudflare's dashboard now offers two different "Connect to Git" wizards and they need different settings. Use whichever one you land on:
 
-1. Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git**.
+### If the wizard shows a Build command + Output directory (classic Pages)
+
+1. Cloudflare dashboard → **Workers & Pages → Overview → Create → Pages tab → Connect to Git**.
 2. Pick the `workout` GitHub repo.
-3. Build settings: framework preset **Vite**, build command `npm run build`, output directory `dist`. Node version: add an environment variable `NODE_VERSION` = `22` (Vite 8 needs ≥ 20.19).
+3. Framework preset **Vite**, build command `npm run build`, output directory `dist`. Add environment variable `NODE_VERSION` = `22` (Vite 8 needs ≥ 20.19).
 4. Save and deploy. You get `https://workout-XXX.pages.dev`; rename the project to get `https://workout.pages.dev` if free.
 
-After that, every push to `main` redeploys in about a minute. `public/_redirects` sends all routes to `index.html` so deep links work.
+`public/_redirects` sends all routes to `index.html` so deep links work on this path.
 
-Vercel works identically (import the repo, framework Vite, output `dist`), if you'd rather.
+### If the wizard shows a Deploy command like `npx wrangler deploy` (Workers Builds)
+
+This is the newer unified flow and is what `wrangler.jsonc` in this repo is set up for — it deploys the static build as a Worker with static assets, no server code needed.
+
+1. Cloudflare dashboard → **Workers & Pages → Create an app → Connect to Git**, pick `workout`.
+2. Build command: `npm run build`. Deploy command: leave the default `npx wrangler deploy` (reads `wrangler.jsonc`, which points at `./dist` and handles the single-page-application fallback). Preview command: leave the default. Path: `/`.
+3. **API token**: don't reuse a token from another project — if the dropdown shows one and warns it's missing permissions (e.g. a token from the 1031-exchange project), click to create a new one and pick the **"Edit Cloudflare Workers"** template, which bundles the right scopes (Account → Workers Scripts: Edit). A mismatched token is why the build will fail even though everything else on that screen looks right.
+4. Deploy. You get `https://workout.<your-subdomain>.workers.dev`; add a custom domain from the project's settings if you want a shorter URL.
+
+Either path, every push to `main` redeploys in about a minute.
+
+Vercel works identically to the classic Pages path (import the repo, framework Vite, output `dist`), if you'd rather.
 
 ## Install on the phone
 
